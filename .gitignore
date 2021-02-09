@@ -1,0 +1,7 @@
+MSD_Data/
+IPR_Data/
+averaged_data/
+*.csv
+__pycache__/
+*.pyc
+
