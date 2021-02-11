@@ -36,7 +36,7 @@ def calc_and_save(folder):
 # loop over all folders and calc MSD and IPR
 allFolderData = []
 len_folds = len(all_dir)
-all_t = []
+totT = 0.0
 for count, folder in enumerate(all_dir, 1):
     t1 = time.time()
 
@@ -50,8 +50,8 @@ for count, folder in enumerate(all_dir, 1):
     numH = int(len_prog_bar * count / len_folds)
     t2 = time.time()
 
-    all_t.append(t2 - t1)
-    avg_t = np.mean(all_t)
+    totT += t2 - t1
+    avg_t = totT / count
     t_left = (len_folds - count + 1) * avg_t
 
     print("|" + "#"*numH + " "*(len_prog_bar - numH)
@@ -73,4 +73,4 @@ csv_ut._write_csv_helper_(f"{save_dir}/averaged_data", "msd.csv", avg_MSD,
                    timesteps_MSD)
 t2 = time.time()
 
-print(f"All done. Time Taken: {sum(all_t) + t2 - t1:.0f}s                                                                                               ")
+print(f"All done. Time Taken: {totT + t2 - t1:.0f}s                                                                                               ")
