@@ -7,10 +7,11 @@ import coeff_utils as coeff_ut
 import csv_utils as csv_ut
 
 # Params
-root_folder = "../.."   # Where to check for data
+root_folder = ".."   # Where to check for data
 all_dir = [f"{root_folder}/{i}" for i in os.listdir(root_folder) if 'run-fssh-' in i] # The folders to calculate for
 save_dir = ".." # Where to save the data
 natoms = 36     # num atoms per molecule
+reCalc_COM_eachTraj = False
 
 #all_dir = all_dir[:3]
 
@@ -18,11 +19,11 @@ print(f"Found {len(all_dir)} folders in '{root_folder}'")
 print(f"Saving analysis data in '{save_dir}'")
 
 
-def calc_and_save(folder):
+def calc_and_save(folder, COM=False):
     """
     Can be used with the multIPRocessing library to parallelise if necessary.
     """
-    FolderData = coeff_ut.FSSHRun(folder)
+    FolderData = coeff_ut.FSSHRun(folder, COM)
     FolderData.calc_3D_MSD_Elstner()
     FolderData.calc_IPR()
 
@@ -33,6 +34,11 @@ def calc_and_save(folder):
     return FolderData
 
 
+COM = False
+if reCalc_COM_eachTraj is False:
+    Pos = xyz_ut.XYZ_File(f"{all_dir[0]}/pos-init.xyz")
+    COM = xyz_ut.calc_COM(Pos, natoms)
+
 # loop over all folders and calc MSD and IPR
 allFolderData = []
 len_folds = len(all_dir)
@@ -42,7 +48,7 @@ for count, folder in enumerate(all_dir, 1):
 
     # Do the calculations
     if os.path.isfile(f"{folder}/run-coeff-1.xyz"):
-        allFolderData.append(calc_and_save(folder))
+        allFolderData.append(calc_and_save(folder, COM))
     else: continue
 
     # Print things in a pretty way and give some useful info
