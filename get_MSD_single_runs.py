@@ -23,8 +23,8 @@ def calc_and_save(folder, COM=False):
     """
     Can be used with the multIPRocessing library to parallelise if necessary.
     """
-    FolderData = coeff_ut.FSSHRun(folder, COM)
-    FolderData.calc_3D_MSD_Elstner()
+    FolderData = coeff_ut.FSSHRun(folder)
+    FolderData.calc_3D_MSD_Elstner(COM)
     FolderData.calc_IPR()
 
     filename = folder.split("/")[-1].replace('run-', '').replace("-", "_")

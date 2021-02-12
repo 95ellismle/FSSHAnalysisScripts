@@ -9,13 +9,12 @@ import csv_utils as csv_ut
 
 #this class reads normal hamiltonian and coefficients and gives all post-process info
 class FSSHRun(object):
-    def __init__(self, folder, COM=False):
+    def __init__(self, folder):
         self.folder = folder
         self.init = False
-        self.COM = COM[:]
-        self.Coeff = xyz_ut.XYZ_File(f"{folder}/run-coeff-1.xyz")
-        self.timesteps = self.Coeff.timesteps
-        self.Pops = self.Coeff[:, :, 0]**2 + self.Coeff[:, :, 1]**2
+        Coeff = xyz_ut.XYZ_File(f"{folder}/run-coeff-1.xyz")
+        self.timesteps = Coeff.timesteps
+        self.Pops = Coeff[:, :, 0]**2 + Coeff[:, :, 1]**2
 
     def read_DECOMP(self):
         """
@@ -55,28 +54,28 @@ class FSSHRun(object):
         return COM
 
 
-    def calc_3D_MSD_Elstner(self):
+    def calc_3D_MSD_Elstner(self, COM=False):
         """
         Will read the initial positions file -pos-init.xyz and
         use the coeff populations to calculate Elstner MSD.
         """
-        if self.COM is False:
+        if COM is False:
             Pos = xyz_ut.XYZ_File(f"{self.folder}/pos-init.xyz")
-            self.COM = xyz_ut.calc_COM(Pos)
-        self.COM = self.apply_mol_nums_to_COM(self.COM)
+            COM = xyz_ut.calc_COM(Pos)
+        COM = self.apply_mol_nums_to_COM(COM[:])
 
         nstep = len(self.Pops)
-        nmol = len(self.COM)
+        nmol = len(COM)
 
         # Initial population weighted center of mass
-        initVec = np.sum(self.Pops[0][:,None]* self.COM, axis=0)
+        initVec = np.sum(self.Pops[0][:,None]* COM, axis=0)
 
         istep = 0
         self.MSD = np.zeros((nstep, 3, 3))
 
         MSD_R = np.zeros((nmol, 3, 3))
         for imol in range(nmol):
-            R = self.COM[imol, :] - initVec
+            R = COM[imol, :] - initVec
             MSD_R[imol] = np.outer(R, R)
 
         for istep in range(nstep):
